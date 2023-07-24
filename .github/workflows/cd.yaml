@@ -29,6 +29,7 @@ jobs:
       - name: Trigger Airflow DAG update
         uses: peter-evans/repository-dispatch@v2
         with:
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
           repository: junghanKang/cd-test-repo-2
           event-type: update-dags-repo
           client-payload: '{"branch": "main", "tag": "${{ env.RELEASE_VERSION }}"}'
