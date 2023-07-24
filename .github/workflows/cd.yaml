@@ -1,0 +1,34 @@
+name: Deploy pipeline for DEV
+
+on:
+  push:
+    tags:
+      - 'dev_v*'
+
+jobs:
+  deploy:
+    name: Deploy
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v1
+
+      - name: Set env
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: dummy echo test
+        run: |
+          echo ${{ github.ref }}
+          echo ${{ github.action_ref}}
+          echo ${{ github.base_ref}}
+          echo ${{ github.head_ref}}
+
+      - name: Trigger Airflow DAG update
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          repository: junghanKang/cd-test-repo-2
+          event-type: update-dags-repo
+          client-payload: '{"branch": "main", "tag": "${{ env.RELEASE_VERSION }}"}'
