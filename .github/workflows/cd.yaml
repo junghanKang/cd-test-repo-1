@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Prepare
         id: prep
-        run: echo "{image_tag}={test_$(date +'%Y%m%d%H%M%S')}" >> $GITHUB_OUTPUT
+        run: echo "image_tag=test_$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
   deploy:
     needs: prepare
