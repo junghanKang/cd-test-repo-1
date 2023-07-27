@@ -2,41 +2,35 @@ name: Deploy pipeline for DEV
 
 on:
   push:
-    tags:
-      - 'feature_v*'
+    branches:
+      - 'develop'
 
 jobs:
-  deploy:
-    name: Deploy
+  prepare:
+    runs-on: self-hosted
+    outputs:
+      image_tag: ${{ steps.prep.outputs.image_tag }}
+    steps:
+      - name: Prepare
+        id: prep
+        run: echo "::set-output name=image_tag::test_$(date +'%Y%m%d%H%M%S')"
 
+  deploy:
+    needs: prepare
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v1
 
-      - name: Set env
-        run: |
-          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
       - name: dummy echo test
         run: |
-          echo ${{ github.ref }}
-          echo ${{ github.action_ref}}
-          echo ${{ github.base_ref}}
-          echo ${{ github.head_ref}}
-
-      # - name: Trigger Airflow DAG update
-      #   uses: peter-evans/repository-dispatch@v2
-      #   with:
-      #     token: ${{ secrets.MY_GITHUB_TOKEN }}
-      #     repository: junghanKang/cd-test-repo-2
-      #     event-type: update-dags-repo
-      #     client-payload: '{"branch": "main", "tag": "${{ env.RELEASE_VERSION }}"}'
+          echo ${{ needs.prepare.outputs.image_tag }}
 
   update-dags-repo:
-    runs-on: ubuntu-latest
     needs: deploy
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out code
@@ -48,7 +42,7 @@ jobs:
 
       - name: Update .env file
         run: |
-          sed -i "s/IMAGE_TAG=.*/IMAGE_TAG=${GITHUB_REF#refs/*/}/g" .env
+          sed -i "s/IMAGE_TAG=.*/IMAGE_TAG=${{ needs.prepare.outputs.image_tag }}/g" .env
 
       - name: Commit and push DAG changes
         run: |
