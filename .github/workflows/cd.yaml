@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Prepare
         id: prep
-        run: echo "::set-output name=image_tag::test_$(date +'%Y%m%d%H%M%S')"
+        run: echo "{image_tag}={test_$(date +'%Y%m%d%H%M%S')}" >> $GITHUB_OUTPUT
 
   deploy:
     needs: prepare
@@ -29,7 +29,7 @@ jobs:
           echo ${{ needs.prepare.outputs.image_tag }}
 
   update-dags-repo:
-    needs: deploy
+    needs: [deploy, prepare]
     runs-on: ubuntu-latest
 
     steps:
