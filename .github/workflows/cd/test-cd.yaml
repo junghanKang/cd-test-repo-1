@@ -1,9 +1,9 @@
-name: Deploy pipeline for main
+name: Deploy pipeline for DEV
 
 on:
   push:
     branches:
-      - 'main'
+      - 'develop'
 
 jobs:
   prepare:
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: junghanKang/cd-test-repo-2
-          ref: main
+          ref: test
           token: ${{ secrets.MY_GITHUB_TOKEN }}
 
       - name: Update .env file
