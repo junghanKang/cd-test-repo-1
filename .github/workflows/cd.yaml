@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - 'main'
+      - 'develop'
+    paths:
+      - 'some_validations.json'
+      - 'some_converts2.json'
 
 jobs:
   prepare:
